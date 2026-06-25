@@ -54,7 +54,7 @@ is receipt OCR).
 | UI runtime | React 19 + TypeScript (strict) | Server Components by default; client islands for interactivity. |
 | Styling | Tailwind CSS v4 + shadcn/ui (`base-nova`, `@base-ui/react`) | OKLCH CSS-variable theme in `app/globals.css`; `cn()` in `lib/utils`. |
 | Database | MongoDB via Mongoose | `MONGODB_URI` in `.env`. Single cached connection. |
-| Auth | Auth.js (NextAuth v5) + MongoDB adapter + WebAuthn/passkeys | Passkeys deliver the Face ID / fingerprint requirement on the web. |
+| Auth | DIY sessions: `jose`-signed JWT in an httpOnly cookie + `bcryptjs` + WebAuthn passkeys (`@simplewebauthn`) | Follows the bundled Next 16 auth guide; avoids the `next-auth@5` beta + its Next 16 peer-dep issues; password and passkey share one session. Passkeys deliver the Face ID / fingerprint requirement on the web. |
 | Validation | Zod | At every server write boundary. |
 | Delivery | PWA (installable, offline-read cache) | Meets multi-device + biometric without a native app. |
 
@@ -122,8 +122,12 @@ ISO-4217 currency code. No floating-point anywhere; format only at the UI edge.
   `limitMinor`; render progress bars, flag at/over limit.
 - **History (M4):** paginated, newest-first, server-side search + filter (date/type/category/amount),
   backed by the `{ userId, date }` index.
-- **Auth (M5):** Auth.js session in httpOnly cookie; protected `(app)` group redirects
-  unauthenticated users; passkey registration enables biometric unlock.
+- **Auth (M5):** DIY `jose` JWT session in an httpOnly cookie (`lib/auth/session.ts`), read
+  via a `cache()`-memoized DAL (`lib/auth/dal.ts`). Password flows are Server Actions
+  (`modules/auth/`); WebAuthn passkey ceremonies are Route Handlers
+  (`app/api/auth/passkey/*`) — both mint the same session. `proxy.ts` does optimistic
+  redirects; the `(app)` layout's `requireUser()` is the real gate. Passkey registration
+  enables biometric unlock.
 - **Export (X1):** Route Handler streams CSV; PDF generated on demand.
 - **Cloud sync (X2):** MongoDB is the single source of truth; every device reads/writes via
   the app, so sync is inherent; Atlas backups protect the data.
