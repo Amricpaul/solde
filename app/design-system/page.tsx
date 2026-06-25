@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Plus, Settings, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -139,12 +140,16 @@ export default function DesignSystemPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
       <header className="mb-12 space-y-3">
-        <p className="text-sm font-medium text-primary">Solde</p>
-        <h1 className="text-4xl font-semibold tracking-tight">Design System</h1>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-primary">Solde</p>
+            <h1 className="text-4xl font-semibold tracking-tight">Design System</h1>
+          </div>
+          <ModeToggle />
+        </div>
         <p className="max-w-prose text-muted-foreground">
-          The tokens and components that make up the Solde interface. Toggle the{" "}
-          <code className="font-mono text-foreground">dark</code> class on{" "}
-          <code className="font-mono text-foreground">&lt;html&gt;</code> to preview dark mode.
+          The tokens and components that make up the Solde interface. Use the toggle to
+          preview light, dark, and system themes.
         </p>
         <nav className="flex flex-wrap gap-2 pt-2">
           {sections.map(([id, label]) => (
