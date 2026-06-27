@@ -1,4 +1,9 @@
+import { LogOut } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
 import { requireUser } from "@/lib/auth/dal";
+import { logoutAction } from "@/modules/auth/actions";
 import { RegisterPasskeyButton } from "@/modules/auth/components/passkey-buttons";
 import { PageHeader } from "../_components/page-header";
 
@@ -42,6 +47,22 @@ export default async function SettingsPage() {
           description="Add a passkey to sign in with Face ID or your fingerprint next time."
         >
           <RegisterPasskeyButton />
+        </Card>
+
+        <Card title="Appearance" description="Choose how Solde looks on this device.">
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Theme</span>
+            <ModeToggle />
+          </div>
+        </Card>
+
+        <Card title="Account">
+          <form action={logoutAction}>
+            <Button type="submit" variant="outline" className="gap-2 text-destructive">
+              <LogOut className="size-4" />
+              Sign out
+            </Button>
+          </form>
         </Card>
       </div>
     </>

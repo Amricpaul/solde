@@ -18,7 +18,7 @@ export function PasskeySignInButton() {
     setPending(true);
     try {
       await signInWithPasskey();
-      router.replace("/dashboard");
+      router.replace("/");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Passkey sign-in failed");

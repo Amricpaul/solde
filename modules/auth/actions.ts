@@ -41,7 +41,7 @@ export async function registerAction(
   }
 
   await createSession(userId);
-  redirect("/dashboard"); // throws — must be outside the try/catch above
+  redirect("/"); // throws — must be outside the try/catch above
 }
 
 export async function loginAction(
@@ -66,7 +66,7 @@ export async function loginAction(
   }
 
   await createSession(userId);
-  redirect("/dashboard");
+  redirect("/");
 }
 
 export async function logoutAction(): Promise<void> {
