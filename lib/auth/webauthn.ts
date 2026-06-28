@@ -2,13 +2,16 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
+import { normalizeAppUrl } from "@/lib/utils";
+
 import { signSession, verifySession } from "./jwt";
 
-const APP_URL = process.env.APP_URL;
-
-if (!APP_URL) {
+if (!process.env.APP_URL) {
   throw new Error("APP_URL is not set. It is required to derive the WebAuthn origin/rpID.");
 }
+
+// Vercel exposes the deployment host without a scheme; normalize so new URL() parses.
+const APP_URL = normalizeAppUrl(process.env.APP_URL);
 
 /** Relying Party config — derived from APP_URL so there's a single source of truth. */
 export const origin = APP_URL;

@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeftRight, LayoutDashboard, Plus, Settings, Target, Wallet } from "lucide-react";
+import { ArrowLeftRight, CreditCard, LayoutDashboard, Plus, Settings, Target, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useAddTransaction } from "@/modules/transactions/components/add-transaction-provider";
 
-export const navItems: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
-  { href: "/budgets", label: "Budgets", icon: Wallet },
+// `mobile` items appear in the bottom tab bar (4 max, around the FAB).
+export const navItems: { href: string; label: string; icon: LucideIcon; mobile?: boolean }[] = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, mobile: true },
+  { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, mobile: true },
+  { href: "/accounts", label: "Accounts", icon: CreditCard, mobile: true },
+  { href: "/budgets", label: "Budgets", icon: Wallet, mobile: true },
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -45,12 +48,14 @@ export function SidebarNav() {
   );
 }
 
-/** Gold quick-add action — placeholder until the Add-transaction sheet is wired (M2). */
+/** Gold quick-add action that opens the Add-transaction sheet. */
 export function QuickAddFab() {
+  const { open } = useAddTransaction();
   return (
     <button
       type="button"
       aria-label="Add transaction"
+      onClick={() => open()}
       className="flex size-14 -translate-y-4 items-center justify-center rounded-full bg-linear-to-br from-[#ffe24d] to-[#ffcc00] text-zinc-900 shadow-[0_10px_24px_-4px_rgba(250,204,21,0.75)] ring-4 ring-background transition-transform active:scale-95"
     >
       <Plus className="size-6" />
@@ -61,7 +66,7 @@ export function QuickAddFab() {
 /** Fixed bottom tab bar for mobile: 4 primary items around a center quick-add FAB. */
 export function BottomNav() {
   const pathname = usePathname();
-  const items = navItems.filter((i) => i.href !== "/settings"); // Settings lives in the mobile header
+  const items = navItems.filter((i) => i.mobile); // 4 primary items; Settings/Goals live elsewhere
   const left = items.slice(0, 2);
   const right = items.slice(2);
 

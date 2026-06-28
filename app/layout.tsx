@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import { normalizeAppUrl } from "@/lib/utils";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,7 +41,7 @@ const ebGaramond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(normalizeAppUrl(process.env.APP_URL ?? "http://localhost:3000")),
   applicationName: "Solde",
   title: "Solde",
   description: "Personal finance — track income, expenses, and budgets.",

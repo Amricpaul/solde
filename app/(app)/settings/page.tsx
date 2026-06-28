@@ -3,8 +3,10 @@ import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { requireUser } from "@/lib/auth/dal";
+import { ensureDefaultCategories, listCategories } from "@/modules/categories/service";
 import { logoutAction } from "@/modules/auth/actions";
 import { RegisterPasskeyButton } from "@/modules/auth/components/passkey-buttons";
+import { CategoryManager } from "@/modules/categories/components/category-manager";
 import { PageHeader } from "../_components/page-header";
 
 function SettingRow({ label, value }: { label: string; value: string }) {
@@ -28,6 +30,8 @@ function Card({ title, description, children }: { title: string; description?: s
 
 export default async function SettingsPage() {
   const user = await requireUser();
+  await ensureDefaultCategories(user.id);
+  const categories = await listCategories(user.id);
 
   return (
     <>
@@ -40,6 +44,17 @@ export default async function SettingsPage() {
             <SettingRow label="Email" value={user.email} />
             <SettingRow label="Base currency" value={user.baseCurrency} />
           </div>
+        </Card>
+
+        <Card title="Categories" description="Group your income and expenses.">
+          <CategoryManager
+            categories={categories.map((c) => ({
+              id: c.id,
+              name: c.name,
+              type: c.type,
+              color: c.color,
+            }))}
+          />
         </Card>
 
         <Card
