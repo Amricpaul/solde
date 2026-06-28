@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { ArrowRight, Plus, Settings, Trash2 } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, ArrowUpRight, Plus, Scan, Settings, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -55,27 +54,7 @@ const typeScale = [
   { cls: "text-xs", label: "text-xs / normal" },
 ];
 
-// "Old school" serif candidates for a finance app — loaded in app/layout.tsx.
-const oldSchoolFonts = [
-  {
-    name: "Libre Baskerville",
-    cls: "font-baskerville",
-    utility: "font-baskerville",
-    note: "Transitional serif — trustworthy, classic banking.",
-  },
-  {
-    name: "Playfair Display",
-    cls: "font-playfair",
-    utility: "font-playfair",
-    note: "High-contrast display serif — premium, private-banking feel.",
-  },
-  {
-    name: "EB Garamond",
-    cls: "font-garamond",
-    utility: "font-garamond",
-    note: "Old-style Garamond — heritage, established institution.",
-  },
-];
+
 
 const weights = [
   { cls: "font-normal", label: "normal 400" },
@@ -133,7 +112,7 @@ export default function DesignSystemPage() {
     ["spacing", "Spacing"],
     ["radius", "Radius"],
     ["buttons", "Buttons"],
-    ["inputs", "Form controls"],
+    ["cards", "Cards"],
     ["tabs", "Tabs"],
   ];
 
@@ -245,34 +224,6 @@ export default function DesignSystemPage() {
           </p>
         </Section>
 
-        {/* Typefaces */}
-        <Section
-          id="typefaces"
-          title="Typefaces"
-          description="Old-school serif candidates that suit a finance product. Each preview uses real figures so you can judge how numerals read."
-        >
-          <div className="space-y-4">
-            {oldSchoolFonts.map((f) => (
-              <div key={f.name} className="rounded-lg border border-border p-6">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <span className="text-sm font-medium">{f.name}</span>
-                  <code className="font-mono text-xs text-muted-foreground">{f.utility}</code>
-                </div>
-                <div className={cn("space-y-3", f.cls)}>
-                  <p className="text-3xl leading-tight font-bold tracking-tight">
-                    Statement of Account
-                  </p>
-                  <p className="text-2xl">Total balance — AED&nbsp;12,480.50</p>
-                  <p className="text-base text-muted-foreground">
-                    Track income and expenses with confidence. 1234567890 · $1,250.00 · €980.75 · ₹64,200
-                  </p>
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">{f.note}</p>
-              </div>
-            ))}
-          </div>
-        </Section>
-
         {/* Spacing */}
         <Section id="spacing" title="Spacing" description="Based on a 4px (0.25rem) unit. The same scale governs padding, gap, and margin.">
           <div className="space-y-2.5">
@@ -300,8 +251,12 @@ export default function DesignSystemPage() {
         </Section>
 
         {/* Buttons */}
-        <Section id="buttons" title="Buttons" description="Variants, sizes, and states from components/ui/button.">
-          <div className="space-y-4 rounded-lg border border-border p-5">
+        <Section
+          id="buttons"
+          title="Buttons"
+          description="The shadcn Button (variants/sizes/states) plus the rounded app-action patterns used on the dashboard."
+        >
+          <div className="space-y-5 rounded-2xl border border-border bg-card p-5">
             <div>
               <p className="mb-2 text-sm font-medium">Variants</p>
               <Row>
@@ -357,24 +312,116 @@ export default function DesignSystemPage() {
                 <Button disabled>Disabled</Button>
               </Row>
             </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium">App actions</p>
+              <Row>
+                <button
+                  type="button"
+                  className="group inline-flex h-12 items-center gap-3 rounded-full bg-card pr-1.5 pl-5 text-sm font-semibold text-foreground ring-1 ring-foreground/10 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+                >
+                  Add expense
+                  <span className="flex size-9 items-center justify-center rounded-full bg-red-500 text-white transition-transform duration-200 group-hover:scale-105">
+                    <ArrowUpRight className="size-4" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="group inline-flex h-12 items-center gap-3 rounded-full bg-card pr-1.5 pl-5 text-sm font-semibold text-foreground ring-1 ring-foreground/10 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+                >
+                  Add income
+                  <span className="flex size-9 items-center justify-center rounded-full bg-emerald-500 text-white transition-transform duration-200 group-hover:scale-105">
+                    <ArrowDownLeft className="size-4" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-linear-to-b from-[#ffe24d] to-[#ffd60a] px-5 text-sm font-semibold text-zinc-900 shadow-[0_10px_24px_-8px_rgba(250,204,21,0.7)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                >
+                  <Plus className="size-5" />
+                  Add transaction
+                </button>
+                <button
+                  type="button"
+                  aria-label="Quick add"
+                  className="flex size-12 items-center justify-center rounded-full bg-linear-to-br from-[#d6f5da] to-[#a3e1ae] text-emerald-900 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.55)] ring-1 ring-emerald-700/10 transition-transform active:scale-95"
+                >
+                  <Plus className="size-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Scan"
+                  className="flex size-12 items-center justify-center rounded-full bg-linear-to-br from-[#ffe24d] to-[#ffcc00] text-zinc-900 shadow-[0_10px_24px_-4px_rgba(250,204,21,0.75)] transition-transform active:scale-95"
+                >
+                  <Scan className="size-5" />
+                </button>
+              </Row>
+            </div>
           </div>
         </Section>
 
-        {/* Form controls */}
-        <Section id="inputs" title="Form controls" description="Inputs and labels share the same focus ring and border tokens.">
-          <div className="grid max-w-sm gap-4 rounded-lg border border-border p-5">
-            <div className="space-y-1.5">
-              <Label htmlFor="ds-email">Email</Label>
-              <Input id="ds-email" type="email" placeholder="you@example.com" />
+        {/* Cards */}
+        <Section
+          id="cards"
+          title="Cards"
+          description="Soft surfaces on bg-card with a hairline ring. The dashboard uses the large-radius variant (rounded-3xl) with a soft drop shadow."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* shadcn Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>shadcn Card</CardTitle>
+                <CardDescription>components/ui/card</CardDescription>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                Header / content / footer slots with the theme ring and radius.
+              </CardContent>
+            </Card>
+
+            {/* Balance / stat card pattern */}
+            <div className="rounded-3xl bg-card p-6 ring-1 ring-foreground/10 shadow-[0_14px_40px_-20px_rgba(0,0,0,0.25)]">
+              <p className="text-sm text-muted-foreground">Total balance</p>
+              <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums">$12,480.50</p>
+              <p className="mt-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                + $1,651 this month
+              </p>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ds-amount">Amount</Label>
-              <Input id="ds-amount" inputMode="decimal" placeholder="0.00" />
+          </div>
+
+          {/* List / panel card pattern */}
+          <div className="rounded-3xl bg-card px-5 py-4 ring-1 ring-foreground/10">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold tracking-tight">Recent activity</h3>
+              <span className="text-sm text-muted-foreground">View all</span>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ds-disabled">Disabled</Label>
-              <Input id="ds-disabled" disabled placeholder="Unavailable" />
-            </div>
+            <ul className="mt-2 divide-y divide-border">
+              <li className="flex items-center justify-between py-3.5">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                    <ArrowUpRight className="size-4" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium">Groceries — Carrefour</p>
+                    <p className="text-xs text-muted-foreground">04:03 PM</p>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-red-500 dark:text-red-400">- $42.80</span>
+              </li>
+              <li className="flex items-center justify-between py-3.5">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                    <ArrowDownLeft className="size-4" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium">Salary — Acme Inc.</p>
+                    <p className="text-xs text-muted-foreground">08:00 AM</p>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  + $4,200
+                </span>
+              </li>
+            </ul>
           </div>
         </Section>
 

@@ -18,6 +18,8 @@ type AuthAction = (
 interface AuthFormProps {
   mode: "login" | "register";
   action: AuthAction;
+  /** Optional success message shown above the form (e.g. after a password reset). */
+  notice?: string;
   /** Optional extra controls (e.g. the passkey button) rendered under the form. */
   children?: React.ReactNode;
 }
@@ -65,7 +67,7 @@ function PasswordInput({ autoComplete }: { autoComplete: string }) {
   );
 }
 
-export function AuthForm({ mode, action, children }: AuthFormProps) {
+export function AuthForm({ mode, action, notice, children }: AuthFormProps) {
   const [state, formAction, pending] = useActionState<AuthFormState | undefined, FormData>(
     action,
     undefined,
@@ -84,6 +86,12 @@ export function AuthForm({ mode, action, children }: AuthFormProps) {
         <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">{t.title}</h1>
         <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
+
+      {notice && !state?.error ? (
+        <p className="mb-4 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+          {notice}
+        </p>
+      ) : null}
 
       <AnimatePresence>
         {state?.error ? (
@@ -125,7 +133,17 @@ export function AuthForm({ mode, action, children }: AuthFormProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            {mode === "login" ? (
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Forgot password?
+              </Link>
+            ) : null}
+          </div>
           <PasswordInput
             autoComplete={mode === "login" ? "current-password" : "new-password"}
           />
