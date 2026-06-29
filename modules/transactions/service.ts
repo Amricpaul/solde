@@ -6,6 +6,7 @@ import { connectDB } from "@/lib/db/connect";
 import { Account } from "@/lib/db/models/account.model";
 import { Transaction, type TransactionDoc } from "@/lib/db/models/transaction.model";
 import { toMinor } from "@/lib/money";
+import { rememberMerchant } from "@/modules/ingestion/categorizer";
 import { UNCATEGORIZED, type TransactionFilters } from "./filters";
 import type { TransactionInput } from "./schema";
 
@@ -164,6 +165,10 @@ export async function setTransactionCategory(
   await connectDB();
   if (categoryId && Types.ObjectId.isValid(categoryId)) {
     await Transaction.updateOne({ _id: id, userId }, { $set: { categoryId } });
+    // Learning loop: teach the merchant→category cache from manual edits so the
+    // AI importer reuses the user's choice next time (manual wins over AI).
+    const txn = await Transaction.findOne({ _id: id, userId }).select("note").lean();
+    if (txn?.note) await rememberMerchant(userId, txn.note, categoryId, "manual");
   } else {
     await Transaction.updateOne({ _id: id, userId }, { $unset: { categoryId: "" } });
   }

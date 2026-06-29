@@ -11,3 +11,5 @@ export {
 } from "./transaction.model";
 export { Budget, type BudgetDoc } from "./budget.model";
 export { Goal, type GoalDoc } from "./goal.model";
+export { BankTemplate, type BankTemplateDoc } from "./bank-template.model";
+export { MerchantCategory, type MerchantCategoryDoc } from "./merchant-category.model";

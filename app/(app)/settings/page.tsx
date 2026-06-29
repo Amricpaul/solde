@@ -70,7 +70,7 @@ export default async function SettingsPage() {
       </SettingsSection>
 
       <SettingsSection title="Integrations">
-        <SettingsSoonRow icon={<Plug />} label="Connected apps" />
+        <SettingsLinkRow href="/settings/integrations" icon={Plug} label="SMS import" />
       </SettingsSection>
 
       <p className="px-1 text-center text-xs text-muted-foreground">

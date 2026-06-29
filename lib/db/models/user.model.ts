@@ -15,6 +15,11 @@ const userSchema = new Schema(
     passwordHash: { type: String },
     // ISO-4217 currency code. Default aligns with the product's primary market.
     baseCurrency: { type: String, default: "AED", uppercase: true },
+    // Personal API key for non-interactive clients (e.g. the Apple Shortcut SMS
+    // importer). Only the SHA-256 hash is stored; the raw key is shown once.
+    apiKeyHash: { type: String, index: true },
+    apiKeyLast4: { type: String }, // for display, e.g. "a1b2"
+    apiKeyCreatedAt: { type: Date },
   },
   { timestamps: true },
 );
