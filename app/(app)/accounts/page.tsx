@@ -26,7 +26,6 @@ export default async function AccountsPage() {
           availableMinor: a.availableMinor,
           utilization: a.utilization,
         }))}
-        baseCurrency={user.baseCurrency}
       />
     </>
   );

@@ -6,8 +6,7 @@ import { motion } from "motion/react";
 import { MailCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { forgotPasswordAction, type AuthFormState } from "@/modules/auth/actions";
 
 export function ForgotPasswordForm() {
@@ -21,7 +20,7 @@ export function ForgotPasswordForm() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
+      className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
     >
       {state?.success ? (
         <div className="space-y-4 text-center">
@@ -55,19 +54,15 @@ export function ForgotPasswordForm() {
           </div>
 
           <form action={formAction} className="space-y-4" noValidate>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                defaultValue={state?.values?.email}
-              />
-              {state?.fieldErrors?.email?.[0] ? (
-                <p className="text-xs text-destructive">{state.fieldErrors.email[0]}</p>
-              ) : null}
-            </div>
+            <FormField
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              autoComplete="email"
+              defaultValue={state?.values?.email}
+              error={state?.fieldErrors?.email?.[0]}
+            />
 
             <Button type="submit" size="lg" className="w-full" disabled={pending}>
               {pending ? "Sending…" : "Send reset link"}

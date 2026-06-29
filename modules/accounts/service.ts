@@ -71,6 +71,8 @@ function creditFields(input: AccountInput, currency: string) {
 export async function createAccount(userId: string, input: AccountInput): Promise<string> {
   await connectDB();
   const isCredit = input.type === "credit_card";
+  // New accounts go to the end of the manual sort order.
+  const sortOrder = await Account.countDocuments({ userId, archived: false });
   const account = await Account.create({
     userId,
     name: input.name,
@@ -78,6 +80,7 @@ export async function createAccount(userId: string, input: AccountInput): Promis
     currency: input.currency,
     last4: input.last4 || undefined,
     institution: input.institution || undefined,
+    sortOrder,
     openingBalanceMinor: toMinor(input.openingBalance ?? 0, input.currency),
     creditLimitMinor: isCredit && input.creditLimit != null ? toMinor(input.creditLimit, input.currency) : undefined,
     statementDay: isCredit ? input.statementDay : undefined,
@@ -111,16 +114,35 @@ export async function archiveAccount(userId: string, id: string): Promise<void> 
   await Account.updateOne({ _id: id, userId }, { $set: { archived: true } });
 }
 
+/** Persist a new manual order: sortOrder = position in the given id list. */
+export async function reorderAccounts(userId: string, ids: string[]): Promise<void> {
+  await connectDB();
+  const uid = new Types.ObjectId(userId);
+  const ops = ids
+    .filter((id) => Types.ObjectId.isValid(id))
+    .map((id, index) => ({
+      updateOne: {
+        filter: { _id: new Types.ObjectId(id), userId: uid },
+        update: { $set: { sortOrder: index } },
+      },
+    }));
+  if (ops.length) await Account.bulkWrite(ops);
+}
+
 export async function listAccounts(userId: string): Promise<SafeAccount[]> {
   await connectDB();
-  const accounts = await Account.find({ userId, archived: false }).sort({ createdAt: 1 }).lean();
+  const accounts = await Account.find({ userId, archived: false })
+    .sort({ sortOrder: 1, createdAt: 1 })
+    .lean();
   return accounts.map((a) => toSafe(a as AccountDoc));
 }
 
 /** Accounts with live balances. Credit cards are treated as liabilities. */
 export async function listAccountsWithBalances(userId: string): Promise<AccountWithBalance[]> {
   await connectDB();
-  const accounts = await Account.find({ userId, archived: false }).sort({ createdAt: 1 }).lean();
+  const accounts = await Account.find({ userId, archived: false })
+    .sort({ sortOrder: 1, createdAt: 1 })
+    .lean();
 
   const agg = await Transaction.aggregate<{ _id: Types.ObjectId; net: number }>([
     { $match: { userId: new Types.ObjectId(userId) } },

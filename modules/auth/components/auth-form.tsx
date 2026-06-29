@@ -6,8 +6,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldGroup } from "@/components/ui/field-group";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import type { AuthFormState } from "@/modules/auth/actions";
 
 type AuthAction = (
@@ -43,27 +43,28 @@ const copy = {
   },
 } as const;
 
-function PasswordInput({ autoComplete }: { autoComplete: string }) {
+function PasswordInput({ autoComplete, error }: { autoComplete: string; error?: string }) {
   const [show, setShow] = useState(false);
   return (
-    <div className="relative">
-      <Input
-        id="password"
-        name="password"
-        type={show ? "text" : "password"}
-        autoComplete={autoComplete}
-        className="pr-9"
-      />
-      <button
-        type="button"
-        onClick={() => setShow((s) => !s)}
-        aria-label={show ? "Hide password" : "Show password"}
-        aria-pressed={show}
-        className="absolute inset-y-0 right-0 flex items-center rounded-r-lg px-2.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-      </button>
-    </div>
+    <FloatingLabelInput
+      id="password"
+      name="password"
+      label="Password"
+      type={show ? "text" : "password"}
+      autoComplete={autoComplete}
+      aria-invalid={error ? true : undefined}
+      endAdornment={
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? "Hide password" : "Show password"}
+          aria-pressed={show}
+          className="flex items-center rounded-lg px-2 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground"
+        >
+          {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        </button>
+      }
+    />
   );
 }
 
@@ -80,7 +81,7 @@ export function AuthForm({ mode, action, notice, children }: AuthFormProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
+      className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8"
     >
       <div className="mb-6 space-y-1.5">
         <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">{t.title}</h1>
@@ -108,47 +109,53 @@ export function AuthForm({ mode, action, notice, children }: AuthFormProps) {
       </AnimatePresence>
 
       <form action={formAction} className="space-y-4" noValidate>
-        {mode === "register" ? (
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Name</Label>
-            <Input id="name" name="name" autoComplete="name" defaultValue={state?.values?.name} />
-            {fieldError("name") ? (
-              <p className="text-xs text-destructive">{fieldError("name")}</p>
+        <div className="space-y-1.5">
+          <FieldGroup>
+            {mode === "register" ? (
+              <FloatingLabelInput
+                id="name"
+                name="name"
+                label="Name"
+                autoComplete="name"
+                defaultValue={state?.values?.name}
+                aria-invalid={fieldError("name") ? true : undefined}
+              />
             ) : null}
-          </div>
-        ) : null}
 
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete={mode === "login" ? "username webauthn" : "email"}
-            defaultValue={state?.values?.email}
-          />
-          {fieldError("email") ? (
-            <p className="text-xs text-destructive">{fieldError("email")}</p>
-          ) : null}
-        </div>
+            <FloatingLabelInput
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              autoComplete={mode === "login" ? "username webauthn" : "email"}
+              defaultValue={state?.values?.email}
+              aria-invalid={fieldError("email") ? true : undefined}
+            />
 
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            {mode === "login" ? (
+            <PasswordInput
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              error={fieldError("password")}
+            />
+          </FieldGroup>
+
+          {/* Errors live below the grouped box so the seam stays clean. */}
+          {[fieldError("name"), fieldError("email"), fieldError("password")]
+            .filter(Boolean)
+            .map((message, i) => (
+              <p key={i} className="text-xs text-destructive">
+                {message}
+              </p>
+            ))}
+
+          {mode === "login" ? (
+            <div className="flex justify-end">
               <Link
                 href="/forgot-password"
                 className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
                 Forgot password?
               </Link>
-            ) : null}
-          </div>
-          <PasswordInput
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-          />
-          {fieldError("password") ? (
-            <p className="text-xs text-destructive">{fieldError("password")}</p>
+            </div>
           ) : null}
         </div>
 

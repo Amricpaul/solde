@@ -39,6 +39,12 @@ export const getCurrentUser = cache(async (): Promise<SafeUser | null> => {
 /** Use in protected pages/actions/handlers — redirects to /login when unauthenticated. */
 export const requireUser = cache(async (): Promise<SafeUser> => {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  return user;
+  if (user) return user;
+
+  // No user resolved. If a session cookie is still present, the token is valid
+  // but the user is gone (deleted / DB reset) — the proxy treats that cookie as
+  // authed, so redirecting to /login would loop (the proxy bounces it back to /).
+  // Route through the logout handler instead, which clears the cookie first.
+  const session = await getSession();
+  redirect(session?.userId ? "/api/auth/logout" : "/login");
 });

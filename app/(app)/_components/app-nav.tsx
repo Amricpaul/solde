@@ -6,9 +6,8 @@ import { ArrowLeftRight, CreditCard, LayoutDashboard, Plus, Settings, Target, Wa
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { useAddTransaction } from "@/modules/transactions/components/add-transaction-provider";
 
-// `mobile` items appear in the bottom tab bar (4 max, around the FAB).
+// `mobile` items appear in the bottom tab bar (4 max, alongside the quick-add FAB).
 export const navItems: { href: string; label: string; icon: LucideIcon; mobile?: boolean }[] = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard, mobile: true },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, mobile: true },
@@ -48,40 +47,44 @@ export function SidebarNav() {
   );
 }
 
-/** Gold quick-add action that opens the Add-transaction sheet. */
-export function QuickAddFab() {
-  const { open } = useAddTransaction();
+/** Center quick-add action: a docked black circle that links to Add-transaction. */
+function CenterFab() {
   return (
-    <button
-      type="button"
-      aria-label="Add transaction"
-      onClick={() => open()}
-      className="flex size-14 -translate-y-4 items-center justify-center rounded-full bg-linear-to-br from-[#ffe24d] to-[#ffcc00] text-zinc-900 shadow-[0_10px_24px_-4px_rgba(250,204,21,0.75)] ring-4 ring-background transition-transform active:scale-95"
-    >
-      <Plus className="size-6" />
-    </button>
+    <div className="flex flex-1 justify-center">
+      <Link
+        href="/transactions/new"
+        aria-label="Add transaction"
+        className="flex size-14 -translate-y-3 items-center justify-center rounded-full bg-foreground text-background shadow-[0_8px_20px_-4px_rgba(0,0,0,0.35)] ring-4 ring-card transition-transform active:scale-95"
+      >
+        <Plus className="size-6" />
+      </Link>
+    </div>
   );
 }
 
-/** Fixed bottom tab bar for mobile: 4 primary items around a center quick-add FAB. */
+/**
+ * Mobile bottom nav: a light, bottom-anchored bar with always-visible labels.
+ * Two tabs sit on each side of a docked black quick-add FAB; the active tab gets
+ * a filled flame tile and a flame label.
+ */
 export function BottomNav() {
   const pathname = usePathname();
-  const items = navItems.filter((i) => i.mobile); // 4 primary items; Settings/Goals live elsewhere
+  const items = navItems.filter((i) => i.mobile); // Settings/Goals live elsewhere
   const left = items.slice(0, 2);
   const right = items.slice(2);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur lg:hidden">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+    <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+      <nav className="flex items-end justify-around gap-1 rounded-t-3xl bg-card px-2 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_-12px_rgba(0,0,0,0.18)] ring-1 ring-foreground/5">
         {left.map((item) => (
           <NavTab key={item.href} item={item} active={isActive(pathname, item.href)} />
         ))}
-        <QuickAddFab />
+        <CenterFab />
         {right.map((item) => (
           <NavTab key={item.href} item={item} active={isActive(pathname, item.href)} />
         ))}
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 }
 
@@ -97,13 +100,20 @@ function NavTab({
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className="flex w-14 flex-col items-center gap-1 py-1"
+      className="flex flex-1 flex-col items-center gap-1 py-1"
     >
-      <Icon className={cn("size-5 transition-colors", active ? "text-foreground" : "text-muted-foreground")} />
       <span
         className={cn(
-          "text-[10px] transition-colors",
-          active ? "font-medium text-foreground" : "text-muted-foreground",
+          "flex size-10 items-center justify-center rounded-xl transition-colors",
+          active ? "bg-primary text-white" : "text-muted-foreground",
+        )}
+      >
+        <Icon className="size-5" />
+      </span>
+      <span
+        className={cn(
+          "text-[0.7rem] font-medium transition-colors",
+          active ? "text-primary" : "text-muted-foreground",
         )}
       >
         {item.label}

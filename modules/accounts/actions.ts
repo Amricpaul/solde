@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { requireUser } from "@/lib/auth/dal";
 import { accountSchema } from "./schema";
-import { archiveAccount, createAccount, updateAccount } from "./service";
+import { archiveAccount, createAccount, reorderAccounts, updateAccount } from "./service";
 
 export interface AccountFormState {
   error?: string;
@@ -15,8 +15,16 @@ export interface AccountFormState {
 
 function revalidateAll() {
   revalidatePath("/");
+  revalidatePath("/accounts");
   revalidatePath("/settings");
   revalidatePath("/transactions");
+}
+
+export async function reorderAccountsAction(ids: string[]): Promise<void> {
+  const user = await requireUser();
+  if (!Array.isArray(ids) || ids.length === 0) return;
+  await reorderAccounts(user.id, ids);
+  revalidateAll();
 }
 
 function parse(formData: FormData) {

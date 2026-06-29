@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { verifySession } from "@/lib/auth/jwt";
+import { externalUrl } from "@/lib/http";
 
 // Optimistic route guard only. The real gate is requireUser() inside the
 // (app) pages — this just avoids rendering protected shells for logged-out
@@ -21,11 +22,11 @@ export async function proxy(request: NextRequest) {
   const isAuthed = !!session?.userId;
 
   if (!isAuthed && isProtected(pathname)) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(externalUrl(request, "/login"));
   }
 
   if (isAuthed && authPages.includes(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(externalUrl(request, "/"));
   }
 
   return NextResponse.next();

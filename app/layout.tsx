@@ -74,6 +74,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // Draw under the status bar / safe areas so page backgrounds reach the top edge.
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FFFCF2" },
     { media: "(prefers-color-scheme: dark)", color: "#252422" },

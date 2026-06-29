@@ -1,12 +1,18 @@
 import "server-only";
 
-import { Types } from "mongoose";
+import { Types, type QueryFilter } from "mongoose";
 
 import { connectDB } from "@/lib/db/connect";
 import { Account } from "@/lib/db/models/account.model";
 import { Transaction, type TransactionDoc } from "@/lib/db/models/transaction.model";
 import { toMinor } from "@/lib/money";
+import { UNCATEGORIZED, type TransactionFilters } from "./filters";
 import type { TransactionInput } from "./schema";
+
+/** Escape user input before it's used in a Mongo $regex. */
+function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export class AccountNotFoundError extends Error {
   constructor() {
@@ -75,16 +81,92 @@ export async function createTransaction(userId: string, input: TransactionInput)
 
 export async function listTransactions(
   userId: string,
-  { limit = 50 }: { limit?: number } = {},
+  { limit = 50, ...filters }: { limit?: number } & TransactionFilters = {},
 ): Promise<SafeTransaction[]> {
   await connectDB();
-  const txns = await Transaction.find({ userId })
+
+  const query: QueryFilter<TransactionDoc> = { userId };
+  if (filters.type) query.type = filters.type;
+  if (filters.accountId && Types.ObjectId.isValid(filters.accountId)) {
+    query.accountId = new Types.ObjectId(filters.accountId);
+  }
+  if (filters.categoryId === UNCATEGORIZED) {
+    query.categoryId = null; // matches both null and missing
+  } else if (filters.categoryId && Types.ObjectId.isValid(filters.categoryId)) {
+    query.categoryId = new Types.ObjectId(filters.categoryId);
+  }
+  if (filters.q) {
+    query.note = { $regex: escapeRegex(filters.q), $options: "i" };
+  }
+
+  const txns = await Transaction.find(query)
     .sort({ date: -1, createdAt: -1 })
     .limit(limit)
     .populate("accountId", "name")
     .populate("categoryId", "name color")
     .lean();
   return txns.map((t) => toSafe(t as unknown as TransactionDoc));
+}
+
+export async function getTransaction(userId: string, id: string): Promise<SafeTransaction | null> {
+  await connectDB();
+  if (!Types.ObjectId.isValid(id)) return null;
+  const txn = await Transaction.findOne({ _id: id, userId })
+    .populate("accountId", "name")
+    .populate("categoryId", "name color")
+    .lean();
+  return txn ? toSafe(txn as unknown as TransactionDoc) : null;
+}
+
+export async function updateTransaction(
+  userId: string,
+  id: string,
+  input: TransactionInput,
+): Promise<void> {
+  await connectDB();
+
+  const account = await Account.findOne({ _id: input.accountId, userId, archived: false })
+    .select("currency")
+    .lean();
+  if (!account) throw new AccountNotFoundError();
+
+  // Build $set/$unset so clearing the note or category actually removes the field.
+  const set: Record<string, unknown> = {
+    accountId: input.accountId,
+    type: input.type,
+    amountMinor: toMinor(input.amount, account.currency),
+    currency: account.currency,
+    date: input.date ?? new Date(),
+  };
+  const unset: Record<string, ""> = {};
+  if (input.note) set.note = input.note;
+  else unset.note = "";
+  if (input.categoryId) set.categoryId = input.categoryId;
+  else unset.categoryId = "";
+
+  await Transaction.updateOne(
+    { _id: id, userId },
+    { $set: set, ...(Object.keys(unset).length ? { $unset: unset } : {}) },
+  );
+}
+
+export async function deleteTransaction(userId: string, id: string): Promise<void> {
+  await connectDB();
+  await Transaction.deleteOne({ _id: id, userId });
+}
+
+/** Lightweight inline categorize (or clear) from the history list. */
+export async function setTransactionCategory(
+  userId: string,
+  id: string,
+  categoryId: string | null,
+): Promise<void> {
+  await connectDB();
+  if (categoryId && Types.ObjectId.isValid(categoryId)) {
+    await Transaction.updateOne({ _id: id, userId }, { $set: { categoryId } });
+  } else {
+    await Transaction.updateOne({ _id: id, userId }, { $unset: { categoryId: "" } });
+  }
 }
 
 export async function getDashboardSummary(userId: string): Promise<DashboardSummary> {

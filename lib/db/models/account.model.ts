@@ -14,6 +14,8 @@ const accountSchema = new Schema(
     // Starting balance in integer minor units; the live balance derives from transactions.
     // For credit cards this is the amount currently owed.
     openingBalanceMinor: { type: Number, required: true, default: 0 },
+    // Manual display order (drag-to-sort on the accounts page); lower shows first.
+    sortOrder: { type: Number, required: true, default: 0 },
     // Credit-card specifics (only set when type === "credit_card").
     creditLimitMinor: { type: Number }, // total credit limit
     statementDay: { type: Number }, // day of month the statement closes (1–31)

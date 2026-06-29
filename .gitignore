@@ -42,3 +42,5 @@ ngrok.yml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.docs/sparq-live.transactions.csv
+scripts/import-transactions.mjs

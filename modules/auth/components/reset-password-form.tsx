@@ -6,8 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { resetPasswordAction, type AuthFormState } from "@/modules/auth/actions";
 
 function PasswordField({
@@ -26,19 +25,24 @@ function PasswordField({
   const [show, setShow] = useState(false);
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <div className="relative">
-        <Input id={id} name={name} type={show ? "text" : "password"} autoComplete={autoComplete} className="pr-9" />
-        <button
-          type="button"
-          onClick={() => setShow((s) => !s)}
-          aria-label={show ? "Hide password" : "Show password"}
-          aria-pressed={show}
-          className="absolute inset-y-0 right-0 flex items-center rounded-r-lg px-2.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-        </button>
-      </div>
+      <FloatingLabelInput
+        id={id}
+        name={name}
+        label={label}
+        type={show ? "text" : "password"}
+        autoComplete={autoComplete}
+        endAdornment={
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            aria-label={show ? "Hide password" : "Show password"}
+            aria-pressed={show}
+            className="flex items-center rounded-lg px-2 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground"
+          >
+            {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        }
+      />
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
     </div>
   );

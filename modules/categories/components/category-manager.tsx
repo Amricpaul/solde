@@ -1,13 +1,12 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { deleteCategoryAction } from "@/modules/categories/actions";
-import { CategoryFormSheet, type ManagedCategory } from "./category-form-sheet";
+import { type ManagedCategory } from "./category-form";
 
-function CategoryRow({ category, onEdit }: { category: ManagedCategory; onEdit: () => void }) {
+function CategoryRow({ category }: { category: ManagedCategory }) {
   return (
     <li className="flex items-center justify-between gap-3 py-2.5">
       <div className="flex min-w-0 items-center gap-2.5">
@@ -18,9 +17,13 @@ function CategoryRow({ category, onEdit }: { category: ManagedCategory; onEdit: 
         <span className="truncate text-sm font-medium">{category.name}</span>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <Button type="button" variant="ghost" size="icon-sm" aria-label={`Edit ${category.name}`} onClick={onEdit}>
+        <Link
+          href={`/settings/categories/${category.id}/edit`}
+          aria-label={`Edit ${category.name}`}
+          className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+        >
           <Pencil />
-        </Button>
+        </Link>
         <form action={deleteCategoryAction}>
           <input type="hidden" name="id" value={category.id} />
           <Button type="submit" variant="ghost" size="icon-sm" aria-label={`Delete ${category.name}`}>
@@ -33,16 +36,8 @@ function CategoryRow({ category, onEdit }: { category: ManagedCategory; onEdit: 
 }
 
 export function CategoryManager({ categories }: { categories: ManagedCategory[] }) {
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<ManagedCategory | undefined>(undefined);
-
   const expense = categories.filter((c) => c.type === "expense");
   const income = categories.filter((c) => c.type === "income");
-
-  const editCategory = (c: ManagedCategory) => {
-    setEditing(c);
-    setOpen(true);
-  };
 
   return (
     <div className="space-y-5">
@@ -57,31 +52,17 @@ export function CategoryManager({ categories }: { categories: ManagedCategory[] 
             </p>
             <ul className="divide-y divide-border">
               {group.items.map((c) => (
-                <CategoryRow key={c.id} category={c} onEdit={() => editCategory(c)} />
+                <CategoryRow key={c.id} category={c} />
               ))}
             </ul>
           </div>
         ) : null,
       )}
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          setEditing(undefined);
-          setOpen(true);
-        }}
-      >
+      <Link href="/settings/categories/new" className={cn(buttonVariants({ variant: "outline" }))}>
         <Plus />
         Add category
-      </Button>
-
-      <CategoryFormSheet
-        key={editing?.id ?? "new"}
-        open={open}
-        onOpenChange={setOpen}
-        category={editing}
-      />
+      </Link>
     </div>
   );
 }

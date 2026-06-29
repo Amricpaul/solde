@@ -9,3 +9,5 @@ export {
   TRANSACTION_SOURCES,
   type TransactionDoc,
 } from "./transaction.model";
+export { Budget, type BudgetDoc } from "./budget.model";
+export { Goal, type GoalDoc } from "./goal.model";

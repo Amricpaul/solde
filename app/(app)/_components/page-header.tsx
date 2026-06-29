@@ -1,21 +1,36 @@
-import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, type LucideIcon } from "lucide-react";
 
 export function PageHeader({
   title,
   description,
   action,
+  backHref,
 }: {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  /** Renders a "Back" link above the title (e.g. on form sub-pages). */
+  backHref?: string;
 }) {
   return (
-    <div className="mb-8 flex items-start justify-between gap-4">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+    <div className="mb-8">
+      {backHref ? (
+        <Link
+          href={backHref}
+          className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ChevronLeft className="size-4" />
+          Back
+        </Link>
+      ) : null}
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }

@@ -9,7 +9,8 @@ export default async function DashboardPage() {
     listAccountsWithBalances(user.id),
     getDashboardSummary(user.id),
   ]);
-  const totalBalanceMinor = accounts.reduce((sum, a) => sum + a.balanceMinor, 0);
+  // Net worth: assets add, credit-card debt subtracts (netWorthMinor is signed).
+  const totalBalanceMinor = accounts.reduce((sum, a) => sum + a.netWorthMinor, 0);
 
   return (
     <DashboardContent
@@ -18,17 +19,6 @@ export default async function DashboardPage() {
       totalBalanceMinor={totalBalanceMinor}
       monthIncomeMinor={summary.monthIncomeMinor}
       monthExpenseMinor={summary.monthExpenseMinor}
-      accounts={accounts.map((a) => ({
-        id: a.id,
-        name: a.name,
-        type: a.type,
-        currency: a.currency,
-        balanceMinor: a.balanceMinor,
-        last4: a.last4,
-        creditLimitMinor: a.creditLimitMinor,
-        availableMinor: a.availableMinor,
-        utilization: a.utilization,
-      }))}
       recent={summary.recent}
     />
   );
