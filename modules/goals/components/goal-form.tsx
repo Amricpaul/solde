@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -55,6 +56,10 @@ export function GoalForm({ currency, goal }: { currency: string; goal?: GoalForm
     }
   }, [state, router]);
 
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   const err = (n: string) => state?.fieldErrors?.[n]?.[0];
 
   return (
@@ -106,8 +111,6 @@ export function GoalForm({ currency, goal }: { currency: string; goal?: GoalForm
             className="h-9 w-16 p-1"
           />
         </div>
-
-        {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
         <div className="pt-2">
           <Button type="submit" size="lg" className="w-full" disabled={pending}>

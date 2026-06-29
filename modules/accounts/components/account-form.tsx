@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
@@ -62,6 +63,10 @@ export function AccountForm({
     }
   }, [state, router, redirectTo]);
 
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   const err = (n: string) => state?.fieldErrors?.[n]?.[0];
 
   return (
@@ -74,7 +79,12 @@ export function AccountForm({
         {err("name") ? <p className="text-xs text-destructive">{err("name")}</p> : null}
       </div>
 
-      <FloatingLabelSelect label="Type" value={type} onValueChange={(v) => setType(v ?? "bank")}>
+      <FloatingLabelSelect
+        label="Type"
+        value={type}
+        onValueChange={(v) => setType(v ?? "bank")}
+        items={Object.fromEntries(TYPE_OPTIONS.map((o) => [o.value, o.label]))}
+      >
         {TYPE_OPTIONS.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             {o.label}
@@ -174,7 +184,6 @@ export function AccountForm({
         </div>
       ) : null}
 
-      {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <div className="pt-2">
         <Button type="submit" size="lg" className="w-full" disabled={pending}>

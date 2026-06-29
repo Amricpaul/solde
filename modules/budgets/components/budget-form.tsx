@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +58,10 @@ export function BudgetForm({
     }
   }, [state, router]);
 
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   const fieldError = (name: string) => state?.fieldErrors?.[name]?.[0];
 
   return (
@@ -97,8 +102,6 @@ export function BudgetForm({
             <p className="text-xs text-destructive">{fieldError("amount")}</p>
           ) : null}
         </div>
-
-        {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
         {budget ? <input type="hidden" name="id" value={budget.id} /> : null}
         <input type="hidden" name="categoryId" value={categoryId} />

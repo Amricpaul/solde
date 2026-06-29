@@ -60,6 +60,7 @@ export function CategoryForm({
         label="Type"
         value={type}
         onValueChange={(v) => setType((v ?? "expense") as "income" | "expense")}
+        items={{ expense: "Expense", income: "Income" }}
       >
         <SelectItem value="expense">Expense</SelectItem>
         <SelectItem value="income">Income</SelectItem>

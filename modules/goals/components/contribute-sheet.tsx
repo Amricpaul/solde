@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
@@ -45,6 +46,10 @@ export function ContributeSheet({
     if (state?.success) router.refresh();
   }, [state, router]);
 
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
@@ -76,8 +81,6 @@ export function ContributeSheet({
               <p className="text-xs text-destructive">{state.fieldErrors.amount[0]}</p>
             ) : null}
           </div>
-
-          {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
           <div className="grid grid-cols-2 gap-3">
             <Button

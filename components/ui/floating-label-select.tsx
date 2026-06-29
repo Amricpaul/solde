@@ -19,6 +19,7 @@ function FloatingLabelSelect({
   children,
   className,
   id,
+  items,
 }: {
   label: string
   value?: string
@@ -28,6 +29,8 @@ function FloatingLabelSelect({
   children: React.ReactNode
   className?: string
   id?: string
+  /** value→label map so the trigger shows the label, not the raw value. */
+  items?: Record<string, React.ReactNode>
 }) {
   const isControlled = value !== undefined
   const [internal, setInternal] = React.useState<string | undefined>(defaultValue)
@@ -45,6 +48,7 @@ function FloatingLabelSelect({
   return (
     <Select
       {...(isControlled ? { value } : { defaultValue })}
+      items={items}
       onValueChange={handleChange}
       onOpenChange={setOpen}
     >

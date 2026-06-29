@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { ArrowDownLeft, ArrowUpRight, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,9 +85,22 @@ export function TransactionForm({
     }
   }, [state, router, redirectTo]);
 
+  useEffect(() => {
+    if (state?.error) toast.error(state.error);
+  }, [state]);
+
   const visibleCategories = useMemo(
     () => categories.filter((c) => c.type === type),
     [categories, type],
+  );
+  // value→label maps so the trigger shows names, not the raw id values.
+  const accountItems = useMemo(
+    () => Object.fromEntries(accounts.map((a) => [a.id, `${a.name} · ${a.currency}`])),
+    [accounts],
+  );
+  const categoryItems = useMemo(
+    () => ({ none: "Uncategorized", ...Object.fromEntries(categories.map((c) => [c.id, c.name])) }),
+    [categories],
   );
   const fieldError = (name: string) => state?.fieldErrors?.[name]?.[0];
 
@@ -146,7 +160,7 @@ export function TransactionForm({
 
         <div className="space-y-1.5">
           <Label>Account</Label>
-          <Select value={accountId} onValueChange={(v) => setAccountId(v ?? "")}>
+          <Select value={accountId} onValueChange={(v) => setAccountId(v ?? "")} items={accountItems}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose an account" />
             </SelectTrigger>
@@ -165,7 +179,7 @@ export function TransactionForm({
 
         <div className="space-y-1.5">
           <Label>Category</Label>
-          <Select value={categoryId} onValueChange={(v) => setCategoryId(v ?? "none")}>
+          <Select value={categoryId} onValueChange={(v) => setCategoryId(v ?? "none")} items={categoryItems}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -194,8 +208,6 @@ export function TransactionForm({
             defaultValue={transaction?.note}
           />
         </div>
-
-        {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
         {transaction ? <input type="hidden" name="id" value={transaction.id} /> : null}
         <input type="hidden" name="type" value={type} />

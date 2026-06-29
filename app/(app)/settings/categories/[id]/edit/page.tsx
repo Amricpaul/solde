@@ -17,9 +17,10 @@ export default async function EditCategoryPage({
 
   return (
     <div className="mx-auto max-w-lg">
-      <PageHeader title="Edit category" description="Used to group your transactions." backHref="/settings" />
+      <PageHeader title="Edit category" description="Used to group your transactions." backHref="/settings/categories" />
       <CategoryForm
         category={{ id: category.id, name: category.name, type: category.type, color: category.color }}
+        redirectTo="/settings/categories"
       />
     </div>
   );

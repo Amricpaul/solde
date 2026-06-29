@@ -75,7 +75,7 @@ export function BottomNav() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-      <nav className="flex items-end justify-around gap-1 rounded-t-3xl bg-card px-2 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_-12px_rgba(0,0,0,0.18)] ring-1 ring-foreground/5">
+      <nav className="flex items-end justify-around gap-1 rounded-t-3xl bg-card/70 px-2 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_-12px_rgba(0,0,0,0.18)] ring-1 ring-foreground/5 backdrop-blur-xl supports-backdrop-filter:bg-card/60">
         {left.map((item) => (
           <NavTab key={item.href} item={item} active={isActive(pathname, item.href)} />
         ))}

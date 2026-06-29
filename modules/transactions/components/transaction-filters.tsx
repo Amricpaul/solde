@@ -44,6 +44,14 @@ export function TransactionFilters({
   const category = searchParams.get("category") ?? "all";
   const qParam = searchParams.get("q") ?? "";
 
+  // value→label maps so triggers show the label, not the raw value.
+  const accountItems = { all: "All accounts", ...Object.fromEntries(accounts.map((a) => [a.id, a.name])) };
+  const categoryItems = {
+    all: "All categories",
+    [UNCATEGORIZED]: "Uncategorized",
+    ...Object.fromEntries(categories.map((c) => [c.id, c.name])),
+  };
+
   // Local, debounced search box; re-sync if the URL is reset elsewhere (e.g. Clear).
   const [q, setQ] = useState(qParam);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional URL→input sync
@@ -120,7 +128,7 @@ export function TransactionFilters({
         </div>
 
         {accounts.length > 0 ? (
-          <Select value={account} onValueChange={(v) => setParam("account", v ?? "all")}>
+          <Select value={account} onValueChange={(v) => setParam("account", v ?? "all")} items={accountItems}>
             <SelectTrigger className="h-10 min-w-38 rounded-xl">
               <Wallet className="size-4 text-muted-foreground" />
               <SelectValue />
@@ -136,7 +144,7 @@ export function TransactionFilters({
           </Select>
         ) : null}
 
-        <Select value={category} onValueChange={(v) => setParam("category", v ?? "all")}>
+        <Select value={category} onValueChange={(v) => setParam("category", v ?? "all")} items={categoryItems}>
           <SelectTrigger className="h-10 min-w-38 rounded-xl">
             <Tag className="size-4 text-muted-foreground" />
             <SelectValue />

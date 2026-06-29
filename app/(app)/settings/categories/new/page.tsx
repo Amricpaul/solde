@@ -7,8 +7,8 @@ export default async function NewCategoryPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <PageHeader title="Add category" description="Used to group your transactions." backHref="/settings" />
-      <CategoryForm />
+      <PageHeader title="Add category" description="Used to group your transactions." backHref="/settings/categories" />
+      <CategoryForm redirectTo="/settings/categories" />
     </div>
   );
 }
